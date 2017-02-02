@@ -1,0 +1,6 @@
+# base microservice ami
+---
+- hosts: default
+  roles:
+    - common
+    - logrotate

@@ -1,0 +1,111 @@
+---
+# tasks file for consul
+- name: ensure customized bin
+  become: yes
+  file:
+    path: /opt/bin
+    state: directory
+  tags:
+    - consul
+
+- name: ensure consul data dir
+  become: yes
+  file: 
+    path: /data/consul 
+    state: directory
+  tags:
+    - consul
+
+- name: ensure consul config dir
+  become: yes
+  file: 
+    path: /etc/consul.d 
+    state: directory
+  tags:
+    - consul
+
+- name: ensure consul ui dir
+  become: yes
+  file: 
+    path: /opt/consul_ui
+    state: directory
+  tags:
+    - consul
+
+- name: setup consul
+  become: yes
+  unarchive: 
+    src: https://releases.hashicorp.com/consul/{{ consul_package }}/consul_{{ consul_package }}_linux_amd64.zip
+    dest: /opt/bin 
+    mode: 0755
+    remote_src: True
+  ignore_errors: "{{ ansible_check_mode }}"
+  tags:
+    - consul
+
+- name: setup ui file
+  become: yes
+  unarchive:
+    src: https://releases.hashicorp.com/consul/{{ consul_ui_package }}/consul_{{ consul_ui_package }}_web_ui.zip
+    dest: /opt/consul_ui
+    remote_src: True
+  ignore_errors: "{{ ansible_check_mode }}"
+  tags:
+    - consul
+
+- name: add consul config
+  become: yes
+  template:
+    src: consul.json.j2
+    dest: /etc/consul.d/consul.json
+  notify: restart consul
+  tags:
+    - consul
+
+- name: setup consul start up script
+  become: yes
+  template:
+    src: start_consul.sh.j2
+    dest: /opt/bin/start_consul.sh
+    mode: 0755
+  notify: restart consul
+  tags:
+    - consul
+
+- name: setup system service check script
+  become: yes
+  copy:
+    src: system_service_check.sh
+    dest: /opt/bin/system_service_check.sh
+    mode: 0755
+  notify: restart consul
+  tags:
+    - consul
+
+- name: setup supervisor service check script
+  become: yes
+  template:
+    src: supervisor_service_check.sh.j2
+    dest: /opt/bin/supervisor_service_check.sh
+    mode: 0755
+  notify: restart consul
+  tags:
+    - consul
+
+- name: setup consul supervisord config
+  become: yes
+  template:
+    src: consul_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/consul.conf"
+  notify: restart consul
+  tags:
+    - consul
+
+- name: start consul supervisord
+  become: yes
+  supervisorctl: 
+    name: consul
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  tags:
+    - consul

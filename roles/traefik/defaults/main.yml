@@ -1,0 +1,21 @@
+---
+# defaults file for traefik
+traefik_image: traefik
+traefik_image_tag: v1.0.2
+traefik_log_level: ERROR
+traefik_log_file: /var/tmp/traefik-access.log
+marathon_hosts: "mi-master-001.razerapi:8080,mi-master-002.razerapi.com:8080,mi-master-003.razerapi.com:8080"
+host_domain: "razerapi.com"
+
+# fluentd-agent
+fluentd_agent_image: supernova106/fluentd-agent
+fluentd_agent_tag: latest
+fluentd_master_host: 10.0.1.105
+fluentd_master_port: 24224
+
+# mongodb
+mongodb_host: 10.0.1.105
+mongodb_port: 27017
+
+# Do Marathon apps automatically get exposed (traefik default is false)
+traefik_marathon_expose_by_default: "true"

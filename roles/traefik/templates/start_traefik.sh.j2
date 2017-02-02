@@ -1,0 +1,12 @@
+#!/bin/bash
+
+CONTAINER_NAME=traefik
+
+docker rm -f $CONTAINER_NAME
+docker run --name $CONTAINER_NAME \
+	-i \
+    --net=host \
+    -v /etc/traefik/traefik.toml:/etc/traefik/traefik.toml \
+    -v {{ traefik_log_file }}:{{ traefik_log_file }} \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    {{ traefik_image }}:{{ traefik_image_tag }}

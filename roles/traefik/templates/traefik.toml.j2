@@ -1,0 +1,14 @@
+port = ":80"
+graceTimeOut = 10
+logLevel = "{{ traefik_log_level }}"
+accessLogsFile = "{{ traefik_log_file }}"
+
+[web]
+address = ":8081"
+
+[marathon]
+endpoint = "http://{{ marathon_hosts }}"
+domain = "{{ host_domain }}"
+watch = true
+networkInterface = "{{ ansible_default_ipv4['interface'] }}"
+exposedByDefault = {{ traefik_marathon_expose_by_default }}

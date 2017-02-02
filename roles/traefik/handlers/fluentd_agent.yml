@@ -1,0 +1,7 @@
+---
+- name: restart fluentd agent
+  become: yes
+  supervisorctl: 
+    name: fluentd_agent
+    state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"

@@ -1,0 +1,50 @@
+<source>
+  @type tail
+  path /fluentd/log/traefik/traefik-access.log #...or where you placed your Apache access log
+  pos_file /fluentd/log/traefik/traefik-access.log.pos # This is where you record file position
+  tag traefik.access
+  time_format %d/%b/%Y:%H:%M:%S %z
+  format /^(?<user_ip>[\d\.]*).*\[(?<time>[^\[]*)\]\s\"(?<request>[^\"]*)\"\s(?<code>[\d]*)\s.*\s\d*\s\"(?<apiname>[^\"]*)\"\s\"(?<backend>.*)\"\s(?<request_time>.*)ms$/
+  types request_time:float,code:integer
+</source>
+
+<match traefik.*>
+        @type copy
+        <store>
+                @type mongo
+                host {{ mongodb_host }}
+                port {{ mongodb_port }}
+                database fluentd
+                collection traefik
+
+                # for capped collection
+                capped
+                capped_size 4096m
+                
+                # authentication
+
+                # key name of timestamp
+                time_key time
+
+                # flush
+                flush_interval 10s
+        </store>
+        <store>
+                @type forward
+                send_timeout 60s
+                recover_wait 10s
+                heartbeat_interval 2s
+                phi_threshold 16
+                hard_timeout 60s
+                <server>
+                name fluentd-master
+                host {{ fluentd_master_host }}
+                port {{ fluentd_master_port }}
+                weight 60
+                </server>
+                <secondary>
+                @type file
+                path /fluentd/log/forward-failed
+                </secondary>
+        </store>
+</match>

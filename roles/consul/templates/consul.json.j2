@@ -1,0 +1,15 @@
+{
+    "datacenter": "{{ consul_dc }}",
+    "rejoin_after_leave": true,
+    "domain": "consul",
+    "log_level": "{{ consul_log_level }}",
+    "data_dir": "/data/consul",
+    "ui_dir": "/opt/consul_ui",
+    "http_api_response_headers": {
+        "Access-Control-Allow-Origin": "*"
+    },
+    "dns_config": {
+        "allow_stale": true,
+        "max_stale": "5s"
+    }
+}

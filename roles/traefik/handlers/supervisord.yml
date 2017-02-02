@@ -1,0 +1,5 @@
+---
+- name: reload supervisord
+  become: yes
+  shell: "{{ supervisord_exec_dir }}/supervisorctl reload"
+  when: start_supervisord|failed

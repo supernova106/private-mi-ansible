@@ -1,0 +1,7 @@
+---
+# handlers file for traefik
+- include: traefik.yml
+- include: nginx.yml
+- include: consul.yml
+- include: supervisord.yml
+- include: fluentd_agent.yml

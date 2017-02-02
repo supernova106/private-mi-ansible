@@ -1,0 +1,9 @@
+# traefik microservice ami
+---
+- hosts: default
+  remote_user: ubuntu
+  roles:
+    - common
+    - consul
+    - traefik
+    - logrotate

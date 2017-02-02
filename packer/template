@@ -1,0 +1,43 @@
+{
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "us-east-1",
+      "source_ami": "ami-2d39803a",
+      "instance_type": "m3.medium",
+      "ssh_username": "ubuntu",
+      "ami_name": "packer_mi_traefik_{{timestamp}}",
+      "associate_public_ip_address": true,
+      "ssh_keypair_name": "KEY_NAME",
+      "ssh_private_key_file": "/home/vagrant/.ssh/id_rsa",
+      "ami_block_device_mappings": [
+        {
+          "device_name": "/dev/sda1",
+          "volume_type": "gp2",
+          "volume_size": 100,
+          "virtual_name": "ephemeral0"
+        }
+      ],
+      "subnet_id": "subnet-37f5951d",
+      "vpc_id": "vpc-96669af1",
+      "security_group_ids": ["security_group_id", "security_group_id"],
+      "iam_instance_profile": "IAM_ROLE",
+      "ami_description": "Traefik AMI for microservice"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do echo 'Waiting for cloud-init...'; sleep 1; done"
+      ]
+    },
+    {
+      "type": "ansible",
+      "playbook_file": "./mi-traefik.yml",
+      "extra_arguments": ["-vvvv"],
+      "ansible_env_vars": ["ANSIBLE_HOST_KEY_CHECKING=False", "ANSIBLE_PRIVATE_KEY_FILE=/home/vagrant/.ssh/id_rsa"],
+      "user": "ubuntu"
+    }
+  ]
+}

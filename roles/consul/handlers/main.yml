@@ -1,0 +1,7 @@
+---
+- name: restart consul
+  become: yes
+  supervisorctl: 
+    name: consul
+    state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"

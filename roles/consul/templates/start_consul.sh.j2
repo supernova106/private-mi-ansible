@@ -1,0 +1,7 @@
+#!/bin/bash
+PRIVATE_IPV4=`hostname -I | cut -f1 -d' '`
+
+/opt/bin/consul agent \
+    -advertise $PRIVATE_IPV4 \
+    -config-dir /etc/consul.d \
+    -join {{ consul_leader }}.{{ host_domain }}

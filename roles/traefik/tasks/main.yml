@@ -1,0 +1,73 @@
+---
+- name: Ensure traefik log file
+  command: touch "{{ traefik_log_file }}"
+  args:
+    creates: "{{ traefik_log_file }}"
+  tags:
+    - traefik
+
+- name: ensure customized bin
+  become: yes
+  file:
+    path: "{{ customized_bin_dir }}"
+    state: directory
+  tags:
+    - traefik
+
+- name: setup start_traefik script
+  become: yes
+  template:
+    src: start_traefik.sh.j2
+    dest: "{{ customized_bin_dir }}/start_traefik.sh"
+    mode: 0755
+  notify: restart traefik
+  tags:
+    - traefik
+
+- name: ensure traefik
+  become: yes
+  file:
+    path: /etc/traefik
+    state: directory
+  tags:
+    - traefik
+
+- name: setup traefik config
+  become: yes
+  template:
+    src: traefik.toml.j2
+    dest: "/etc/traefik/traefik.toml"
+  notify: restart traefik
+  tags:
+    - traefik
+
+- name: setup traefik supervisord config
+  become: yes
+  template:
+    src: traefik_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/traefik.conf"
+  notify: restart traefik
+  tags:
+    - traefik
+
+- name: start traefik supervisord
+  become: yes
+  supervisorctl: 
+    name: traefik
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  tags:
+    - traefik
+
+- name: setup consul service check traefik
+  become: yes
+  copy:
+    src: traefik_service.json
+    dest: /etc/consul.d/traefik_service.json
+  notify: reload consul config
+  tags:
+    - traefik
+
+- include: fluentd_agent.yml
+
+
